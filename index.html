@@ -4387,19 +4387,18 @@ function _Browser_load(url)
 		}
 	}));
 }
-var author$project$Main$Model = F2(
+var author$project$Main$Dice = F2(
 	function (dieFace, rolls) {
 		return {dieFace: dieFace, rolls: rolls};
 	});
-var elm$core$Basics$False = {$: 'False'};
-var elm$core$Basics$True = {$: 'True'};
-var elm$core$Result$isOk = function (result) {
-	if (result.$ === 'Ok') {
-		return true;
-	} else {
-		return false;
-	}
+var author$project$Main$Model = function (dices) {
+	return {dices: dices};
 };
+var elm$core$Array$Array_elm_builtin = F4(
+	function (a, b, c, d) {
+		return {$: 'Array_elm_builtin', a: a, b: b, c: c, d: d};
+	});
+var elm$core$Array$branchFactor = 32;
 var elm$core$Basics$EQ = {$: 'EQ'};
 var elm$core$Basics$GT = {$: 'GT'};
 var elm$core$Basics$LT = {$: 'LT'};
@@ -4480,11 +4479,6 @@ var elm$core$Array$foldr = F3(
 var elm$core$Array$toList = function (array) {
 	return A3(elm$core$Array$foldr, elm$core$List$cons, _List_Nil, array);
 };
-var elm$core$Array$branchFactor = 32;
-var elm$core$Array$Array_elm_builtin = F4(
-	function (a, b, c, d) {
-		return {$: 'Array_elm_builtin', a: a, b: b, c: c, d: d};
-	});
 var elm$core$Basics$ceiling = _Basics_ceiling;
 var elm$core$Basics$fdiv = _Basics_fdiv;
 var elm$core$Basics$logBase = F2(
@@ -4609,8 +4603,52 @@ var elm$core$Array$builderToArray = F2(
 				builder.tail);
 		}
 	});
-var elm$core$Basics$idiv = _Basics_idiv;
+var elm$core$Basics$True = {$: 'True'};
 var elm$core$Basics$lt = _Utils_lt;
+var elm$core$Array$fromListHelp = F3(
+	function (list, nodeList, nodeListSize) {
+		fromListHelp:
+		while (true) {
+			var _n0 = A2(elm$core$Elm$JsArray$initializeFromList, elm$core$Array$branchFactor, list);
+			var jsArray = _n0.a;
+			var remainingItems = _n0.b;
+			if (_Utils_cmp(
+				elm$core$Elm$JsArray$length(jsArray),
+				elm$core$Array$branchFactor) < 0) {
+				return A2(
+					elm$core$Array$builderToArray,
+					true,
+					{nodeList: nodeList, nodeListSize: nodeListSize, tail: jsArray});
+			} else {
+				var $temp$list = remainingItems,
+					$temp$nodeList = A2(
+					elm$core$List$cons,
+					elm$core$Array$Leaf(jsArray),
+					nodeList),
+					$temp$nodeListSize = nodeListSize + 1;
+				list = $temp$list;
+				nodeList = $temp$nodeList;
+				nodeListSize = $temp$nodeListSize;
+				continue fromListHelp;
+			}
+		}
+	});
+var elm$core$Array$fromList = function (list) {
+	if (!list.b) {
+		return elm$core$Array$empty;
+	} else {
+		return A3(elm$core$Array$fromListHelp, list, _List_Nil, 0);
+	}
+};
+var elm$core$Basics$False = {$: 'False'};
+var elm$core$Result$isOk = function (result) {
+	if (result.$ === 'Ok') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var elm$core$Basics$idiv = _Basics_idiv;
 var elm$core$Elm$JsArray$initialize = _JsArray_initialize;
 var elm$core$Array$initializeHelp = F5(
 	function (fn, fromIndex, len, nodeList, tail) {
@@ -4870,7 +4908,13 @@ var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$Main$init = function (_n0) {
 	return _Utils_Tuple2(
-		A2(author$project$Main$Model, 1, 0),
+		author$project$Main$Model(
+			elm$core$Array$fromList(
+				_List_fromArray(
+					[
+						A2(author$project$Main$Dice, 1, 0),
+						A2(author$project$Main$Dice, 1, 0)
+					]))),
 		elm$core$Platform$Cmd$none);
 };
 var elm$core$Platform$Sub$batch = _Platform_batch;
@@ -4878,22 +4922,180 @@ var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
 var author$project$Main$subscriptions = function (model) {
 	return elm$core$Platform$Sub$none;
 };
-var author$project$Main$NewFace = function (a) {
-	return {$: 'NewFace', a: a};
+var author$project$Main$Roll = function (a) {
+	return {$: 'Roll', a: a};
 };
-var author$project$Main$Roll = {$: 'Roll'};
-var author$project$Main$Rolling = function (a) {
-	return {$: 'Rolling', a: a};
+var author$project$Main$Rolling = F2(
+	function (a, b) {
+		return {$: 'Rolling', a: a, b: b};
+	});
+var elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var elm$core$Array$bitMask = 4294967295 >>> (32 - elm$core$Array$shiftStep);
+var elm$core$Bitwise$and = _Bitwise_and;
+var elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
+var elm$core$Array$getHelp = F3(
+	function (shift, index, tree) {
+		getHelp:
+		while (true) {
+			var pos = elm$core$Array$bitMask & (index >>> shift);
+			var _n0 = A2(elm$core$Elm$JsArray$unsafeGet, pos, tree);
+			if (_n0.$ === 'SubTree') {
+				var subTree = _n0.a;
+				var $temp$shift = shift - elm$core$Array$shiftStep,
+					$temp$index = index,
+					$temp$tree = subTree;
+				shift = $temp$shift;
+				index = $temp$index;
+				tree = $temp$tree;
+				continue getHelp;
+			} else {
+				var values = _n0.a;
+				return A2(elm$core$Elm$JsArray$unsafeGet, elm$core$Array$bitMask & index, values);
+			}
+		}
+	});
+var elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
+var elm$core$Array$tailIndex = function (len) {
+	return (len >>> 5) << 5;
 };
-var elm$core$Process$sleep = _Process_sleep;
-var elm$core$Basics$identity = function (x) {
-	return x;
+var elm$core$Basics$ge = _Utils_ge;
+var elm$core$Array$get = F2(
+	function (index, _n0) {
+		var len = _n0.a;
+		var startShift = _n0.b;
+		var tree = _n0.c;
+		var tail = _n0.d;
+		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? elm$core$Maybe$Nothing : ((_Utils_cmp(
+			index,
+			elm$core$Array$tailIndex(len)) > -1) ? elm$core$Maybe$Just(
+			A2(elm$core$Elm$JsArray$unsafeGet, elm$core$Array$bitMask & index, tail)) : elm$core$Maybe$Just(
+			A3(elm$core$Array$getHelp, startShift, index, tree)));
+	});
+var elm$core$Array$length = function (_n0) {
+	var len = _n0.a;
+	return len;
 };
-var elm$core$Task$Perform = function (a) {
-	return {$: 'Perform', a: a};
-};
-var elm$core$Task$succeed = _Scheduler_succeed;
-var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
+var elm$core$Elm$JsArray$push = _JsArray_push;
+var elm$core$Elm$JsArray$singleton = _JsArray_singleton;
+var elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
+var elm$core$Array$insertTailInTree = F4(
+	function (shift, index, tail, tree) {
+		var pos = elm$core$Array$bitMask & (index >>> shift);
+		if (_Utils_cmp(
+			pos,
+			elm$core$Elm$JsArray$length(tree)) > -1) {
+			if (shift === 5) {
+				return A2(
+					elm$core$Elm$JsArray$push,
+					elm$core$Array$Leaf(tail),
+					tree);
+			} else {
+				var newSub = elm$core$Array$SubTree(
+					A4(elm$core$Array$insertTailInTree, shift - elm$core$Array$shiftStep, index, tail, elm$core$Elm$JsArray$empty));
+				return A2(elm$core$Elm$JsArray$push, newSub, tree);
+			}
+		} else {
+			var value = A2(elm$core$Elm$JsArray$unsafeGet, pos, tree);
+			if (value.$ === 'SubTree') {
+				var subTree = value.a;
+				var newSub = elm$core$Array$SubTree(
+					A4(elm$core$Array$insertTailInTree, shift - elm$core$Array$shiftStep, index, tail, subTree));
+				return A3(elm$core$Elm$JsArray$unsafeSet, pos, newSub, tree);
+			} else {
+				var newSub = elm$core$Array$SubTree(
+					A4(
+						elm$core$Array$insertTailInTree,
+						shift - elm$core$Array$shiftStep,
+						index,
+						tail,
+						elm$core$Elm$JsArray$singleton(value)));
+				return A3(elm$core$Elm$JsArray$unsafeSet, pos, newSub, tree);
+			}
+		}
+	});
+var elm$core$Array$unsafeReplaceTail = F2(
+	function (newTail, _n0) {
+		var len = _n0.a;
+		var startShift = _n0.b;
+		var tree = _n0.c;
+		var tail = _n0.d;
+		var originalTailLen = elm$core$Elm$JsArray$length(tail);
+		var newTailLen = elm$core$Elm$JsArray$length(newTail);
+		var newArrayLen = len + (newTailLen - originalTailLen);
+		if (_Utils_eq(newTailLen, elm$core$Array$branchFactor)) {
+			var overflow = _Utils_cmp(newArrayLen >>> elm$core$Array$shiftStep, 1 << startShift) > 0;
+			if (overflow) {
+				var newShift = startShift + elm$core$Array$shiftStep;
+				var newTree = A4(
+					elm$core$Array$insertTailInTree,
+					newShift,
+					len,
+					newTail,
+					elm$core$Elm$JsArray$singleton(
+						elm$core$Array$SubTree(tree)));
+				return A4(elm$core$Array$Array_elm_builtin, newArrayLen, newShift, newTree, elm$core$Elm$JsArray$empty);
+			} else {
+				return A4(
+					elm$core$Array$Array_elm_builtin,
+					newArrayLen,
+					startShift,
+					A4(elm$core$Array$insertTailInTree, startShift, len, newTail, tree),
+					elm$core$Elm$JsArray$empty);
+			}
+		} else {
+			return A4(elm$core$Array$Array_elm_builtin, newArrayLen, startShift, tree, newTail);
+		}
+	});
+var elm$core$Array$push = F2(
+	function (a, array) {
+		var tail = array.d;
+		return A2(
+			elm$core$Array$unsafeReplaceTail,
+			A2(elm$core$Elm$JsArray$push, a, tail),
+			array);
+	});
+var elm$core$Array$setHelp = F4(
+	function (shift, index, value, tree) {
+		var pos = elm$core$Array$bitMask & (index >>> shift);
+		var _n0 = A2(elm$core$Elm$JsArray$unsafeGet, pos, tree);
+		if (_n0.$ === 'SubTree') {
+			var subTree = _n0.a;
+			var newSub = A4(elm$core$Array$setHelp, shift - elm$core$Array$shiftStep, index, value, subTree);
+			return A3(
+				elm$core$Elm$JsArray$unsafeSet,
+				pos,
+				elm$core$Array$SubTree(newSub),
+				tree);
+		} else {
+			var values = _n0.a;
+			var newLeaf = A3(elm$core$Elm$JsArray$unsafeSet, elm$core$Array$bitMask & index, value, values);
+			return A3(
+				elm$core$Elm$JsArray$unsafeSet,
+				pos,
+				elm$core$Array$Leaf(newLeaf),
+				tree);
+		}
+	});
+var elm$core$Array$set = F3(
+	function (index, value, array) {
+		var len = array.a;
+		var startShift = array.b;
+		var tree = array.c;
+		var tail = array.d;
+		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? array : ((_Utils_cmp(
+			index,
+			elm$core$Array$tailIndex(len)) > -1) ? A4(
+			elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			tree,
+			A3(elm$core$Elm$JsArray$unsafeSet, elm$core$Array$bitMask & index, value, tail)) : A4(
+			elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			A4(elm$core$Array$setHelp, startShift, index, value, tree),
+			tail));
+	});
 var elm$core$List$foldrHelper = F4(
 	function (fn, acc, ctr, ls) {
 		if (!ls.b) {
@@ -4963,6 +5165,15 @@ var elm$core$List$map = F2(
 			_List_Nil,
 			xs);
 	});
+var elm$core$Process$sleep = _Process_sleep;
+var elm$core$Basics$identity = function (x) {
+	return x;
+};
+var elm$core$Task$Perform = function (a) {
+	return {$: 'Perform', a: a};
+};
+var elm$core$Task$succeed = _Scheduler_succeed;
+var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
 var elm$core$Task$andThen = _Scheduler_andThen;
 var elm$core$Task$map = F2(
 	function (func, taskA) {
@@ -5040,7 +5251,6 @@ var elm$core$Task$perform = F2(
 var elm$random$Random$Generate = function (a) {
 	return {$: 'Generate', a: a};
 };
-var elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
 var elm$random$Random$Seed = F2(
 	function (a, b) {
 		return {$: 'Seed', a: a, b: b};
@@ -5147,7 +5357,6 @@ var elm$random$Random$generate = F2(
 var elm$core$Basics$negate = function (n) {
 	return -n;
 };
-var elm$core$Bitwise$and = _Bitwise_and;
 var elm$core$Bitwise$xor = _Bitwise_xor;
 var elm$random$Random$peel = function (_n0) {
 	var state = _n0.a;
@@ -5188,45 +5397,82 @@ var elm$random$Random$int = F2(
 	});
 var author$project$Main$update = F2(
 	function (msg, model) {
-		update:
-		while (true) {
-			var rolls = model.rolls;
-			switch (msg.$) {
-				case 'Roll':
-					return _Utils_Tuple2(
-						model,
+		switch (msg.$) {
+			case 'Start':
+				var random = function (i) {
+					return A2(
+						elm$random$Random$generate,
+						author$project$Main$Rolling(i),
+						A2(elm$random$Random$int, 1, 6));
+				};
+				return _Utils_Tuple2(
+					model,
+					elm$core$Platform$Cmd$batch(
 						A2(
-							elm$random$Random$generate,
-							author$project$Main$Rolling,
-							A2(elm$random$Random$int, 1, 6)));
-				case 'Rolling':
-					var tmpFace = msg.a;
-					if (model.rolls === 6) {
-						var $temp$msg = author$project$Main$NewFace(tmpFace),
-							$temp$model = model;
-						msg = $temp$msg;
-						model = $temp$model;
-						continue update;
-					} else {
-						return _Utils_Tuple2(
-							_Utils_update(
-								model,
-								{dieFace: tmpFace, rolls: rolls + 1}),
+							elm$core$List$map,
+							random,
 							A2(
-								elm$core$Task$perform,
-								function (_n1) {
-									return author$project$Main$Roll;
-								},
-								elm$core$Process$sleep(100)));
-					}
-				default:
-					var newFace = msg.a;
-					return _Utils_Tuple2(
-						A2(author$project$Main$Model, newFace, 0),
-						elm$core$Platform$Cmd$none);
-			}
+								elm$core$List$range,
+								0,
+								elm$core$Array$length(model.dices)))));
+			case 'Roll':
+				var i = msg.a;
+				return _Utils_Tuple2(
+					model,
+					A2(
+						elm$random$Random$generate,
+						author$project$Main$Rolling(i),
+						A2(elm$random$Random$int, 1, 6)));
+			case 'Rolling':
+				var i = msg.a;
+				var tmpFace = msg.b;
+				var _n1 = A2(elm$core$Array$get, i, model.dices);
+				if (_n1.$ === 'Nothing') {
+					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				} else {
+					var dice = _n1.a;
+					return (dice.rolls === 6) ? _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								dices: A3(
+									elm$core$Array$set,
+									i,
+									A2(author$project$Main$Dice, tmpFace, 0),
+									model.dices)
+							}),
+						elm$core$Platform$Cmd$none) : _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								dices: A3(
+									elm$core$Array$set,
+									i,
+									A2(author$project$Main$Dice, tmpFace, dice.rolls + 1),
+									model.dices)
+							}),
+						A2(
+							elm$core$Task$perform,
+							function (_n2) {
+								return author$project$Main$Roll(i);
+							},
+							elm$core$Process$sleep(100)));
+				}
+			default:
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							dices: A2(
+								elm$core$Array$push,
+								A2(author$project$Main$Dice, 1, 0),
+								model.dices)
+						}),
+					elm$core$Platform$Cmd$none);
 		}
 	});
+var author$project$Main$AddDice = {$: 'AddDice'};
+var author$project$Main$Start = {$: 'Start'};
 var elm$json$Json$Decode$map = _Json_map1;
 var elm$json$Json$Decode$map2 = _Json_map2;
 var elm$json$Json$Decode$succeed = _Json_succeed;
@@ -5262,8 +5508,8 @@ var author$project$Main$drawDot = F2(
 			_List_Nil);
 	});
 var elm$svg$Svg$g = elm$svg$Svg$trustedNode('g');
-var author$project$Main$drawCube = function (model) {
-	var _n0 = model.dieFace;
+var author$project$Main$drawDots = function (dice) {
+	var _n0 = dice.dieFace;
 	switch (_n0) {
 		case 1:
 			return A2(author$project$Main$drawDot, '25', '25');
@@ -5323,9 +5569,78 @@ var author$project$Main$drawCube = function (model) {
 						A2(author$project$Main$drawDot, '37', '25')
 					]));
 		default:
-			return A2(author$project$Main$drawDot, '25', '25');
+			return A2(elm$svg$Svg$g, _List_Nil, _List_Nil);
 	}
 };
+var elm$svg$Svg$rect = elm$svg$Svg$trustedNode('rect');
+var elm$svg$Svg$svg = elm$svg$Svg$trustedNode('svg');
+var elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var elm$svg$Svg$Attributes$rx = _VirtualDom_attribute('rx');
+var elm$svg$Svg$Attributes$ry = _VirtualDom_attribute('ry');
+var elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
+var elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
+var elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
+var elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
+var author$project$Main$drawDice = function (dice) {
+	return A2(
+		elm$svg$Svg$svg,
+		_List_fromArray(
+			[
+				elm$svg$Svg$Attributes$width('50'),
+				elm$svg$Svg$Attributes$height('50')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				elm$svg$Svg$g,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						elm$svg$Svg$rect,
+						_List_fromArray(
+							[
+								elm$svg$Svg$Attributes$x('0'),
+								elm$svg$Svg$Attributes$y('0'),
+								elm$svg$Svg$Attributes$width('50'),
+								elm$svg$Svg$Attributes$height('50'),
+								elm$svg$Svg$Attributes$fill('white'),
+								elm$svg$Svg$Attributes$stroke('black'),
+								elm$svg$Svg$Attributes$strokeWidth('5'),
+								elm$svg$Svg$Attributes$rx('5'),
+								elm$svg$Svg$Attributes$ry('5')
+							]),
+						_List_Nil),
+						author$project$Main$drawDots(dice)
+					]))
+			]));
+};
+var elm$core$Elm$JsArray$map = _JsArray_map;
+var elm$core$Array$map = F2(
+	function (func, _n0) {
+		var len = _n0.a;
+		var startShift = _n0.b;
+		var tree = _n0.c;
+		var tail = _n0.d;
+		var helper = function (node) {
+			if (node.$ === 'SubTree') {
+				var subTree = node.a;
+				return elm$core$Array$SubTree(
+					A2(elm$core$Elm$JsArray$map, helper, subTree));
+			} else {
+				var values = node.a;
+				return elm$core$Array$Leaf(
+					A2(elm$core$Elm$JsArray$map, func, values));
+			}
+		};
+		return A4(
+			elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			A2(elm$core$Elm$JsArray$map, helper, tree),
+			A2(elm$core$Elm$JsArray$map, func, tail));
+	});
 var elm$html$Html$button = _VirtualDom_node('button');
 var elm$html$Html$div = _VirtualDom_node('div');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
@@ -5347,17 +5662,6 @@ var elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		elm$json$Json$Decode$succeed(msg));
 };
-var elm$svg$Svg$rect = elm$svg$Svg$trustedNode('rect');
-var elm$svg$Svg$svg = elm$svg$Svg$trustedNode('svg');
-var elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
-var elm$svg$Svg$Attributes$rx = _VirtualDom_attribute('rx');
-var elm$svg$Svg$Attributes$ry = _VirtualDom_attribute('ry');
-var elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
-var elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
-var elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
-var elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
-var elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
-var elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
 var author$project$Main$view = function (model) {
 	return A2(
 		elm$html$Html$div,
@@ -5365,41 +5669,29 @@ var author$project$Main$view = function (model) {
 		_List_fromArray(
 			[
 				A2(
-				elm$svg$Svg$svg,
+				elm$html$Html$div,
+				_List_Nil,
+				elm$core$Array$toList(
+					A2(elm$core$Array$map, author$project$Main$drawDice, model.dices))),
+				A2(
+				elm$html$Html$button,
 				_List_fromArray(
 					[
-						elm$svg$Svg$Attributes$viewBox('0 0 50 50'),
-						elm$svg$Svg$Attributes$width('50'),
-						elm$svg$Svg$Attributes$height('50')
+						elm$html$Html$Events$onClick(author$project$Main$Start)
 					]),
 				_List_fromArray(
 					[
-						A2(
-						elm$svg$Svg$rect,
-						_List_fromArray(
-							[
-								elm$svg$Svg$Attributes$x('0'),
-								elm$svg$Svg$Attributes$y('0'),
-								elm$svg$Svg$Attributes$width('50'),
-								elm$svg$Svg$Attributes$height('50'),
-								elm$svg$Svg$Attributes$fill('white'),
-								elm$svg$Svg$Attributes$stroke('black'),
-								elm$svg$Svg$Attributes$strokeWidth('5'),
-								elm$svg$Svg$Attributes$rx('5'),
-								elm$svg$Svg$Attributes$ry('5')
-							]),
-						_List_Nil),
-						author$project$Main$drawCube(model)
+						elm$html$Html$text('Roll')
 					])),
 				A2(
 				elm$html$Html$button,
 				_List_fromArray(
 					[
-						elm$html$Html$Events$onClick(author$project$Main$Roll)
+						elm$html$Html$Events$onClick(author$project$Main$AddDice)
 					]),
 				_List_fromArray(
 					[
-						elm$html$Html$text('Roll')
+						elm$html$Html$text('Add Dice')
 					]))
 			]));
 };
