@@ -1,0 +1,5 @@
+# ignore elm stuff
+elm-stuff
+
+# ignore compiled elm in master branch
+index.html
