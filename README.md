@@ -12,3 +12,5 @@ Based on the Random code in the official elm guide.
 "elm/svg": "1.0.1"
 
 ### Live Example
+
+https://gaiagonen.github.io/elm-dices/
