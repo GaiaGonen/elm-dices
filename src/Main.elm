@@ -55,6 +55,7 @@ type Msg
     | Roll Int
     | Rolling Int Int
     | AddDice
+    | RemoveDice
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -84,6 +85,9 @@ update msg model =
 
         AddDice ->
           ( { model | dices = Array.push (Dice 1 0) model.dices } , Cmd.none )
+          
+        RemoveDice ->
+          ( { model | dices = Array.slice 0 -1 model.dices } , Cmd.none )
 
 
 --SUBSCRIPTIONS
@@ -104,6 +108,7 @@ view model =
         [ div [] (Array.toList <| Array.map drawDice model.dices)
         , button [ onClick Start ] [ Html.text "Roll" ]
         , button [ onClick AddDice ] [ Html.text "Add Dice" ]
+        , button [ onClick RemoveDice ] [ Html.text "Remove Dice" ]
         ]
 
 
